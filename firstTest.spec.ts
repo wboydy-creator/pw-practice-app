@@ -72,6 +72,6 @@ test('locating parent elements', async({page}) =>{
     await page.locator('nb-card').filter({has: page.locator('nb-checkbox')}).filter({hasText: "sign in"})
         .getByRole('textbox', {name: "Email"}).click()
         
-// Not suggested to use below ass much
+// Not suggested to use below as much
         await page.locator(':text-is("Using the Grid")').locator('..').getByRole('textbox', {name: "Email"}).click()
 })
