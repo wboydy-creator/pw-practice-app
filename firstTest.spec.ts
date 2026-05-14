@@ -64,11 +64,14 @@ test('locating parent elements', async({page}) =>{
     await page.locator('nb-card', {hasText: "Using the Grid"}).getByRole('textbox', {name: "Email"}).click()
     await page.locator('nb-card', {has: page.locator('#inputEmail')}).getByRole('textbox', {name: "Email"}).click()
 
+    //has vs hasText: has is used to find the element which has the child element with the locator provided, whereas hasText is used to find the element which has the text provided
     await page.locator('nb-card').filter({hasText: "Basic form"}).getByRole('textbox', {name: "Email"}).click()
     await page.locator('nb-card').filter({has: page.locator('.status-danger')}).getByRole('textbox', {name: "Password"}).click()
+
     // use for depenndents
     await page.locator('nb-card').filter({has: page.locator('nb-checkbox')}).filter({hasText: "sign in"})
         .getByRole('textbox', {name: "Email"}).click()
+        
 // Not suggested to use below ass much
         await page.locator(':text-is("Using the Grid")').locator('..').getByRole('textbox', {name: "Email"}).click()
 })
