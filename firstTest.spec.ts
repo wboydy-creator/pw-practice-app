@@ -59,3 +59,16 @@ test('locating child elements', async({page}) => {
 
     await page.locator('nb-card').nth(3).getByRole('button').click()// try to avoid this approach as the element(card) can change:  fyi index always starts with (0)
 })
+
+test('locating parent elements', async({page}) =>{
+    await page.locator('nb-card', {hasText: "Using the Grid"}).getByRole('textbox', {name: "Email"}).click()
+    await page.locator('nb-card', {has: page.locator('#inputEmail')}).getByRole('textbox', {name: "Email"}).click()
+
+    await page.locator('nb-card').filter({hasText: "Basic form"}).getByRole('textbox', {name: "Email"}).click()
+    await page.locator('nb-card').filter({has: page.locator('.status-danger')}).getByRole('textbox', {name: "Password"}).click()
+    // use for depenndents
+    await page.locator('nb-card').filter({has: page.locator('nb-checkbox')}).filter({hasText: "sign in"})
+        .getByRole('textbox', {name: "Email"}).click()
+// Not suggested to use below ass much
+        await page.locator(':text-is("Using the Grid")').locator('..').getByRole('textbox', {name: "Email"}).click()
+})
