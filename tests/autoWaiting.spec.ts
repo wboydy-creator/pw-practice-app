@@ -6,6 +6,13 @@ test.beforeEach(async ({page}) => {
     await page.getByText('Button Triggering AJAX Request').click() 
    })
 
+   //this example block below that is commented below with the testInfo allows default timeout to override by 2000ms 
+   //test.beforeEach(async ({page, testInfo}) => {  
+  //  await page.goto('http://uitestingplayground.com/ajax')
+  //  await page.getByText('Button Triggering AJAX Request').click() 
+  //testInfo.setTimeout(2000) 
+  // })
+
    test('auto waiting', async ({page}) => {
     const successButton = page.locator('.bg-success')
 
@@ -40,3 +47,10 @@ test.beforeEach(async ({page}) => {
     expect(text).toContain('Data loaded with AJAX get request.')
    })
 
+   test('timeouts', async ({page}) =>{
+    //test.setTimeout(10000)
+    test.slow() //This will mark the test as slow and will increase the timeout for this test to 30 seconds. This is useful when you know that the test will take longer than the default timeout and you want to avoid false positives due to timeouts.
+    const successButton = page.locator('.bg-success')
+    //below override the configuration timeout set in plawright.config.ts file
+    await successButton.click() 
+   })
