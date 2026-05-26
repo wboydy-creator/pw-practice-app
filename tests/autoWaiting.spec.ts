@@ -40,3 +40,9 @@ test.beforeEach(async ({page}) => {
     expect(text).toContain('Data loaded with AJAX get request.')
    })
 
+   test('timeouts', async ({page}) =>{
+
+    const successButton = page.locator('bg-success')
+    await successButton.click()
+
+   })
