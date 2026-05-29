@@ -40,3 +40,28 @@ test.describe('Form Layouts page', () => {
         expect(await usingTheGridForm.getByRole('radio', {name: "Option 2"}).isChecked()).toBeTruthy// check that option 2 is checked
     })
 })
+
+test('checkboxes', async({page}) => {
+        await page.getByText('Modal & Overlays').click() 
+        await page.getByText('Toastr').click()
+
+        await page.getByRole('checkbox', {name: "Hide on click"}).check({force: true})//had to use force true because its hidden, can use click, but doesn't check stutus, so if checked, click will uncheck but check() will just check if uncheck and nothing if checked already
+        await page.getByRole('checkbox', {name: "Hide on click"}).uncheck({force: true})// will uncheck if checked
+        await page.getByRole('checkbox', {name: "Prevent arising of duplicate toast"}).check({force: true})
+
+        //to make all checkbox checked
+        const allBoxes = page.getByRole('checkbox')
+        for(const box of await allBoxes.all()){
+            await box.check({force: true})
+            expect(await box.isChecked()).toBeTruthy
+        }
+
+        //to make all checkbox unchecked
+        const allBoxesUnchecked = page.getByRole('checkbox')
+        for(const box of await allBoxesUnchecked.all()){
+            await box.uncheck({force: true})
+            expect(await box.isChecked()).toBeFalsy
+        }
+    })
+
+
