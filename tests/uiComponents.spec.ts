@@ -64,4 +64,33 @@ test('checkboxes', async({page}) => {
         }
     })
 
+test('List and dropdown', async({page}) => {
+    const dropDownMenu=page.locator ('ngx-header nb-select')
+    await dropDownMenu.click()//click to open dropdown menu})
 
+    page.getByRole('list')//when the list has a UL tag(parent list)
+    page.getByRole('listitem')//wen the list has LI tag(all the listed item in the list)
+
+    //const optionList = page.getByRole('list').locator('nb-option')//locate all the options in the dropdown menu
+    const optionList = page.locator('nb-option-list nb-option')
+    await expect(optionList).toHaveText(["Light", "Dark", "Cosmic", "Corporate"])//locate all the options in the dropdown menu, this is better because it will work even if there is no list tag in the dropdown menu
+    await optionList.filter({hasText: "Cosmic"}).click()//filter the option with text "Cosmic" and click it
+    const header = page.locator('nb-layout-header')
+    await expect(header).toHaveCSS('background-color', 'rgb(50, 50, 89)')//check if the header has class cosmic-theme, this is to check if the theme is changed to cosmic
+
+    const colors = {
+        Light: 'rgb(255, 255, 255)',
+        Dark: 'rgb(34, 43, 69)',
+        Cosmic: 'rgb(50, 50, 89)',
+        Corporate: 'rgb(255, 255, 255)'
+    }
+
+    await dropDownMenu.click()//click to open dropdown menu again for next iteration
+    for(const color in colors){
+        await optionList.filter({hasText: color}).click()//filter the option with text "color" and click it
+        await expect(header).toHaveCSS('background-color', colors[color])//check if the header has class color-theme, this is to check if the theme is changed to color
+        if(color != "Corporate") // will continue until color is not corporate
+         await dropDownMenu.click()//click to open dropdown menu again for next iteration
+    }
+
+})
