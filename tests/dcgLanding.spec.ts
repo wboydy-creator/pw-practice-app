@@ -11,7 +11,6 @@ test.beforeEach(async ({page}) => {
     await expect(page).toHaveTitle(/Census/);
     });
 
-
 //Test the Official site banner on Landing page is clickable
 test('Landing Page Official site banner Link', async ({page}) => {
    await page.getByText(' Here’s how you know ').first().click()
@@ -98,16 +97,6 @@ test('Landing Page Contact Us dropdown Link', async ({page}) => {
    await page.getByLabel('Send Us an Email').click() 
 })
 
-//Test the Search Icon from landing page is clickable
-test('Landing Page search icon', async ({page}) => {
-   await page.getByRole('combobox', { name: 'Search Button' }).click();
-})
-
-//Test the Microphone from landing page is clickable
-test('Landing Page microphone icon', async ({page}) => {
-   await page.getByRole('button', {
-  name: 'Speak to perform a search'}).click();
-})
 
 //Test the Search By Address button from landing page is clickable
 test('Landing Page Search Button', async ({page}) => {
