@@ -72,3 +72,9 @@ test('All Page Link', async ({page}) => {
   await closeButton.click();
 
   });
+
+  //Test the double chevron button on All page is clickable
+test('All Page Double Chevron button', async ({page}) => {
+   await page.locator(
+  ':has(> div.aqua-icon[style*="chevron-double-left"])').first().click();
+})
