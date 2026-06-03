@@ -94,3 +94,82 @@ test('List and dropdown', async({page}) => {
     }
 
 })
+//finding and noting tooltip
+test('tooltips', async({page}) => {
+        await page.getByText('Modal & Overlays').click() 
+        await page.getByText('Tooltip').click()
+
+        const toolTipCard = page.locator('nb-card', {hasText: "Tooltip Placements"})
+        await toolTipCard.getByRole('button', {name: "Top"}).hover()
+
+        page.getByRole('tooltip')//this only works if you have a role tooltip created in the DOM
+        const tooltip = await page.locator('nb-tooltip').textContent()
+        expect(tooltip).toEqual('This is a tooltip')
+})
+//dialog box for browser dialogs box, not withing site
+test('dialog box', async({page}) => {
+
+        await page.getByText('Tables & Data').click() 
+        await page.getByText('Smart Table').click()
+
+            //listner created for dialog box
+        page.on('dialog', dialog => {
+            expect(dialog.message()).toEqual('Are you sure you want to delete?')
+            dialog.accept()// to accept to delete
+        })
+
+        await page.getByRole('table').locator('tr', {hasText: "mdo@gmail.com"}).locator('.nb-trash').click()
+
+        //mak3e sure does not have email that was deleted
+        await expect(page.locator('table tr').first()).not.toHaveText('mdo@gmail.com')
+})
+
+test('web tables', async({page}) => {
+
+        await page.getByText('Tables & Data').click() 
+        await page.getByText('Smart Table').click()
+
+//Scenario 1: how to get the row by any test in this row
+        const targetRow = page.getByRole('row', {name: "twitter@outlook.com"})
+        await targetRow.locator('.nb-edit').click()
+        await page.locator('input-editor').getByPlaceholder('Age').clear()// clear age input value
+        await page.locator('input-editor').getByPlaceholder('Age').fill('35')//fill input with age 
+        await page.locator ('.nb-checkmark').click()//confirm update
+
+
+//scenario 2: to get the row based on the value in the specific column
+        await page.locator('.ng2-smart-pagination-nav').getByText('2').click()
+        const targetRowByID = page.getByRole('row', {name: "19"}).filter({has: page.locator('td').nth(1).getByText('19')})
+        await targetRowByID.locator('.nb-edit').click()
+        await page.locator('input-editor').getByPlaceholder('E-mail').clear()// clear email input value
+        await page.locator('input-editor').getByPlaceholder('E-mail').fill('wboydy@gmail.com')//fill input with email
+        await page.locator ('.nb-checkmark').click()
+        await expect(targetRowByID.locator('td').nth(5)).toHaveText('wboydy@gmail.com')//assertion to confirm correct new imput
+
+//scenario 3 test filter of the table
+
+const ages = ["20", "30", "40", "200"]
+
+//for loop here will cycle through all ages
+for ( let age of ages){//set variable of age  to obtain each of the ages through the loop
+    await page.locator('input-filter').getByPlaceholder('Age').clear()
+    await page.locator('input-filter').getByPlaceholder('Age').fill(age)
+    await page.waitForTimeout(500)// create a timeout to allow for each selection during loop
+
+    const ageRows = page.locator('tbody tr')// locator will give all rows inside of table body
+
+// for this loop for each cellValue, you will get the cell content
+    for (let row of await ageRows.all()){
+            const cellValue = await row.locator('td').last().textContent()
+
+            if(age == "200"){
+                expect(await page.getByRole('table').textContent()).toContain('No data found')
+
+            } else {
+
+            expect(cellValue).toEqual(age)// assertion to confirm age is correct
+
+            }
+        }
+    }
+})
