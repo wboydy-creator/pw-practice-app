@@ -1,7 +1,7 @@
 //import { state } from '@angular/animations'
 
-/*This test suite is for the ALL page(TAB) and to test all elements are accessible 
-and clickable on the ALL page and available*/
+/*This test suite is for the MAPS page(TAB) and to test all elements are accessible 
+and clickable on the MAPS page and available*/
 
 
 import {test, expect} from '@playwright/test'
