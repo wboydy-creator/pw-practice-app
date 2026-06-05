@@ -173,3 +173,114 @@ for ( let age of ages){//set variable of age  to obtain each of the ages through
         }
     }
 })
+//selecting date from calendar (not idea because its hard coded, but just to show how to select from calendar)
+test('datepicker', async({page}) => {
+    await page.getByText('Forms').click() 
+    await page.getByText('Datepicker').click()
+
+    const calendarInputFields = page.getByPlaceholder('Form Picker')
+    await calendarInputFields.click()// click to open calendar
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText('1', {exact: true }).click()//select day 1 (have to use exact because there are multiple 1s in the calendar)
+    await expect(calendarInputFields).toHaveValue('Jun 1, 2026')//assertion to confirm correct date is selected
+})
+
+//selecting date from calendar (not idea because its hard coded, but just to show how to select from calendar)
+test('datePicker automated', async({page}) => {
+    await page.getByText('Forms').click() 
+    await page.getByText('Datepicker').click()
+
+    const calendarInputFields = page.getByPlaceholder('Form Picker')
+    await calendarInputFields.click()// click to open calendar
+
+    let date = new Date()// get current date
+    date.setDate(date.getDate() + 1)// set date to tomorrow's date
+    const expectedDate = date.getDate().toString()// get day of month and convert to string
+    
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true}).click()//select day 1 (have to use exact because there are multiple 1s in the calendar)
+    await expect(calendarInputFields).toHaveValue('Jun 6, 2026')//assertion to confirm correct date is selected
+})
+
+
+/*selecting date from calendar (not idea because its hard coded, but just to show how to 
+ select from calendar - including assertion, this will fail if the Date in the future extends to another month)*/
+test('datePicker automated assertion not hardcoded', async({page}) => {
+    await page.getByText('Forms').click() 
+    await page.getByText('Datepicker').click()
+
+    const calendarInputFields = page.getByPlaceholder('Form Picker')
+    await calendarInputFields.click()// click to open calendar
+
+    let date = new Date()// get current date
+    date.setDate(date.getDate() + 1)// set date to tomorrow's date
+    const expectedDate = date.getDate().toString()// get day of month and convert to string
+    const expectedMonthshort = date.toLocaleString('En-US', { month: 'short' })
+    const expectedYear = date.getFullYear()// get year and convert to string
+    const dateToAssert = `${expectedMonthshort} ${expectedDate}, ${expectedYear}`//not single quote allows to format date individually
+    
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true}).click()//select day 1 (have to use exact because there are multiple 1s in the calendar)
+    await expect(calendarInputFields).toHaveValue(dateToAssert)//assertion to confirm correct date is selected
+})
+
+/*selecting date from calendar if date changes to next month(month switching) with longer version of name*/
+test('datePicker month switching', async({page}) => {
+    await page.getByText('Forms').click() 
+    await page.getByText('Datepicker').click()
+
+    const calendarInputFields = page.getByPlaceholder('Form Picker')
+    await calendarInputFields.click()// click to open calendar
+
+    let date = new Date()// get current date
+    date.setDate(date.getDate() + 300)// set date ahead of today
+    const expectedDate = date.getDate().toString()// get day of month and convert to string
+    const expectedMonthshort = date.toLocaleString('En-US', { month: 'short' })
+    const expectedMonthLong = date.toLocaleString('En-US', { month: 'long' })
+
+    const expectedYear = date.getFullYear()// get year and convert to string
+    const dateToAssert = `${expectedMonthshort} ${expectedDate}, ${expectedYear}`//not single quote allows to format date individually
+  
+    
+    let calendarMonthandYear = await page.locator('nb-calendar-view-mode').textContent()//text display in current selector
+    const expectedMonthAndYear = `${expectedMonthLong} ${expectedYear}`//getting expected month and year
+
+    //start a while loop, that states while current month and year does not include the expected, keep going until it does
+    while(!calendarMonthandYear.includes(expectedMonthAndYear)){
+        await page.locator('nb-calendar-pageable-navigation [data-name="chevron-right"]').click()//click chevron right to go to next month
+        calendarMonthandYear = await page.locator('nb-calendar-view-mode').textContent()//get the text to confirm which month year
+    }
+
+    await page.locator('[class="day-cell ng-star-inserted"]').getByText(expectedDate, {exact: true}).click()//select day 1 (have to use exact because there are multiple 1s in the calendar)
+    await expect(calendarInputFields).toHaveValue(dateToAssert)//assertion to confirm correct date is selected
+})
+
+//slider change point (move)
+test('sliders', async ({page}) => {
+    //update attribute
+    //const tempGauge = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger circle')
+    //await tempGauge.evaluate( node => {
+    //    node.setAttribute('cx', '232.630')//set to the bottom
+    //    node.setAttribute('cy', '232.630')//set to the bottom
+    //})
+    //await tempGauge.click()
+
+    //Mouse Movement
+    const tempBox = page.locator('[tabtitle="Temperature"] ngx-temperature-dragger')
+    await tempBox.scrollIntoViewIfNeeded()
+
+    const box = await tempBox.boundingBox()
+    const x = box.x + box.width / 2
+    const y = box.y + box.height / 2
+    await page.mouse.move(x,y)
+    await page.mouse.down()
+    await page.mouse.move(x+100, y)
+    await page.mouse.move(x+100, y+100)
+    await page.mouse.up()
+    await expect(tempBox).toContainText('30')
+ 
+})
+
+
+
+
