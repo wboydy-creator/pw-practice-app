@@ -1,19 +1,19 @@
 import { state } from '@angular/animations'
-import {test, expect} from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
-test.beforeEach(async ({page}) => {
+test.beforeEach(async ({ page }) => {
     await page.goto('http://uitestingplayground.com/ajax')
-    await page.getByText('Button Triggering AJAX Request').click() 
-   })
+    await page.getByText('Button Triggering AJAX Request').click()
+})
 
-   //this example block below that is commented below with the testInfo allows default timeout to override by 2000ms 
-   //test.beforeEach(async ({page, testInfo}) => {  
-  //  await page.goto('http://uitestingplayground.com/ajax')
-  //  await page.getByText('Button Triggering AJAX Request').click() 
-  //testInfo.setTimeout(2000) 
-  // })
+//this example block below that is commented below with the testInfo allows default timeout to override by 2000ms 
+//test.beforeEach(async ({page, testInfo}) => {  
+//  await page.goto('http://uitestingplayground.com/ajax')
+//  await page.getByText('Button Triggering AJAX Request').click() 
+//testInfo.setTimeout(2000) 
+// })
 
-   test('auto waiting', async ({page}) => {
+test('auto waiting', async ({ page }) => {
     const successButton = page.locator('.bg-success')
 
     //await successButton.click()    
@@ -26,11 +26,11 @@ test.beforeEach(async ({page}) => {
     //auto waiting is when playwright waits for the element to be visible before performing any action on it. In this case, it waits for the success button to be visible before clicking on
     //expect(text).toContain('Data loaded with AJAX get request.')
 
-    await expect(successButton).toHaveText('Data loaded with AJAX get request.' , {timeout: 20000})//Using timeout of 20 seconds to wait for the success button to be visible before performing any action on it. This is useful when the element takes a long time to load or when there are network issues that may cause delays in loading the element. By default, Playwright has a timeout of 30 seconds for all actions, but you can override it for specific actions like this one.
-    
-   })
-    
-   test('alternative waits', async ({page}) => {
+    await expect(successButton).toHaveText('Data loaded with AJAX get request.', { timeout: 20000 })//Using timeout of 20 seconds to wait for the success button to be visible before performing any action on it. This is useful when the element takes a long time to load or when there are network issues that may cause delays in loading the element. By default, Playwright has a timeout of 30 seconds for all actions, but you can override it for specific actions like this one.
+
+})
+
+test('alternative waits', async ({ page }) => {
     const successButton = page.locator('.bg-success')
 
     //__wait for element
@@ -42,15 +42,15 @@ test.beforeEach(async ({page}) => {
     //wait__for network calls to be completed('NOT RECOMMENDED)
     await page.waitForLoadState('networkidle')
 
-    
+
     const text = await successButton.allTextContents()
     expect(text).toContain('Data loaded with AJAX get request.')
-   })
+})
 
-   test('timeouts', async ({page}) =>{
+test('timeouts', async ({ page }) => {
     //test.setTimeout(10000)
     test.slow() //This will mark the test as slow and will increase the timeout for this test to 30 seconds. This is useful when you know that the test will take longer than the default timeout and you want to avoid false positives due to timeouts.
     const successButton = page.locator('.bg-success')
     //below override the configuration timeout set in plawright.config.ts file
-    await successButton.click() 
-   })
+    await successButton.click()
+})
