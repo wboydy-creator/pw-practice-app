@@ -58,10 +58,12 @@ test.describe('Microdata Page Tests', () => {
 
         await agepRow.click();
 
+        //select agep variable
         await expect(
             agepRow.locator("input[type='checkbox']")
         ).toBeChecked();
 
+        //select sex variable
         const sexRow = page.locator(
             "div.ag-center-cols-container[ref='eContainer'] div[role='row']",
         ).filter({
@@ -113,4 +115,64 @@ test.describe('Microdata Page Tests', () => {
             await expect(totalCells.nth(i)).not.toBeEmpty();
         }
     });
-})
+
+    /**************Test the Mdat Selecting Age and sex using dataset CPSBASIC 2024DEC (CPSBASIC202412/vars) and that the table returns with data****************/
+    //Default Mdat selection
+    test('Selecting Age and sex using dataset CPSBASIC202412', async ({ page }) => {
+
+        //select dropdown to view dataSets available
+        const dropdown = page.getByRole('combobox').first();
+
+        await dropdown.click();//click first time to open
+
+        //Select CPS Basic Monthly in dropdown
+        await page.getByRole('option', { name: 'CPS Basic Monthly' }).first().click();
+
+        //select the vintage for the Mdat dataset
+        const yeardropdown = page.getByRole('combobox').nth(1);
+        await yeardropdown.click();
+
+        await page.getByRole('option', { name: '2024 DEC' }).first().click();
+
+        //Clicking the Next button from Mdat home page
+        await page.getByRole('button', { name: 'NEXT' }).first().click();
+
+        //Select a variable from the available list PWCMPWGT
+        const row = page.getByRole('row').filter({ hasText: 'PWCMPWGT' });
+        await row.locator('input.ag-checkbox-input').check();
+
+        //Select a variable from the available list HWHHWGT
+        const secondrow = page.getByRole('row').filter({ hasText: 'HWHHWGT' });
+        await secondrow.locator('input.ag-checkbox-input').check();
+
+        //Select Geography tab
+        const geographiesTab = page.locator('a', { hasText: 'Geographies' });
+        await geographiesTab.click();
+
+
+        //Clicking the Next button from Mdat home page
+        await page.getByRole('button', { name: 'SELECT ALL' }).first().click();
+
+        //confirm that the geography number returns all region - bubble above geographies should match total for selection
+        await expect(
+            page.locator('.aqua-dot-indicator').first()
+        ).toHaveText('4');
+
+        await page.getByRole('button', { name: 'VIEW TABLE' }).first().click()
+
+        //set the totalCells to the cells in the table
+        const totalCells = page.locator('[role="gridcell"][col-id="total"]');
+
+        const count = await totalCells.count();
+
+        for (let i = 0; i < count; i++) {
+            await expect(totalCells.nth(i)).not.toHaveText('');
+        }
+
+    })
+
+
+
+});
+
+ 
