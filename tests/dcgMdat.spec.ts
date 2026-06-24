@@ -393,7 +393,117 @@ test.describe('Microdata Page Tests', () => {
         ).toHaveCount(1);
 
     });
+    //Use the AutoGroup feature to create groups
+    test('Create and use autogroup', async ({ page }) => {
+        await page.goto('/app/mdat/ACSPUMS1Y2024/cart?cv=SEX&rv=ucgid&nv=AGEP_RC1&vv=AGEP&wt=PWGTP&g=AwFm-BVBlYEYg&AGEP_RC1=N4IgyiBcIEoKYGMD2ATOACAZkgTugggOZwgA0sUI~A4gKIAKZIAalANpsgAMpAjJPwCcgpgDkkAF3S0ANgGc4AdwAWcHBmo4kAVwAOcFGQk5tcALpmAvkA');
 
+        //Selecting the Create New Group button
+        await page.getByRole('button', { name: 'CREATE CUSTOM GROUP' }).first().click()
+
+        const variable = page.locator('.varId', {
+            hasText: 'AGEP_RC1'
+        });
+
+        await expect(variable).toBeVisible();
+
+        //Click the variable agep_rc1
+        await variable.click();
+
+
+        //Selecting the Create New Group button
+        await page.getByRole('button', { name: 'AUTO GROUP' }).first().click()
+
+        //input new number of 50 in "Start" input box
+        await page.locator('input[aria-label="start"]').fill('5');
+
+        //input new number of 5000 in "end" input box
+        await page.locator('input[aria-label="end"]').fill('90');
+
+        //Save the new selection and confirm update to custom group
+        await page.getByRole('button', { name: 'SAVE' }).first().click()
+
+        const values = await page
+            .locator('[role="gridcell"][col-id="label"]')
+            .allTextContents();
+
+        //create loop to confirm no value less than 5 or greater than 90
+        for (const text of values) {
+            const value = Number(text.trim());
+
+            //if not a number, will skip 
+            if (Number.isNaN(value)) {
+                continue; // skip labels like "Not Elsewhere Grouped"
+            }
+
+            //confirm value between 5 and 90
+            expect(value).toBeGreaterThanOrEqual(5);
+            expect(value).toBeLessThanOrEqual(90);
+        };
+        //test RECODE button
+
+        //check for cell point to edit
+        const cell = page.locator('text=6:6').first();
+
+        //select edit button
+        const editButton = cell.locator(
+            'xpath=ancestor::div[@role="gridcell"]//img[@title="Edit group"]'
+        );
+
+        //make sure editButton in view
+        await editButton.scrollIntoViewIfNeeded();
+        const box = await editButton.boundingBox();
+        await editButton.click({ trial: true });
+        await editButton.click();
+
+        //Selecting the Create New Group button
+        await page.getByRole('button', { name: 'Edit range' }).first().click();
+
+        //Update the new number of minimum 8 in "Start" input box
+        await page.locator('input[aria-label="minimum"]').fill('8');
+
+        //Update the new number of minimum 8 in "Start" input box
+        await page.locator('input[aria-label="maximum"]').fill('8');
+
+        //Save the new selection and confirm update to custom group
+        await page.getByRole('button', { name: 'CANCEL' }).nth(1).click()
+        //await page.locator('button:has-text("SAVE")').click();
+
+        //Use to cancel the recode
+        await page.getByRole('button', { name: 'CANCEL RECODE' }).click()
+
+
+    });
+
+    //url exceeded limit
+    test('URL exceeded limit', async ({ page }) => {
+        await page.goto('/app/mdat/ACSPUMS1Y2024/cart?nv=PWGTP_RC1&vv=*PWGTP,WGTP&wt=PWGTP&PWGTP_RC1=N4IgyiBcIEoKYGMD2ATOACAZkgTugCgKoCyY6ADnDgM5IB26A7nAJYDmAFgC4gA0sUEPgDqAcQAq~PiABqUANryQABkgBGSAE5tm6QDkkXdAFEANtTiMOVDKJxIArpRR8uOB3AC6ngL5A');
+
+        //Select the button "AUTO GROUP" to open the input panel for autogroup
+        await page.getByRole('button', { name: 'AUTO GROUP' }).first().click()
+
+        //input new number of 50 in "Start" input box
+        await page.locator('input[aria-label="start"]').fill('50');
+
+        //Select the button "RESET" to reset "Start" back to 1
+        await page.getByRole('button', { name: 'RESET' }).first().click()
+
+        //input new number of 50 in "start" input box
+        await page.locator('input[aria-label="start"]').fill('50');
+
+        //input new number of 5000 in "end" input box
+        await page.locator('input[aria-label="end"]').fill('5000');
+
+        //Save the new selection and confirm update to custom group
+        await page.getByRole('button', { name: 'SAVE' }).first().click()
+
+        await expect(
+            page.locator('.warning-text')
+        ).toContainText('Current selections exceed the character limit');
+
+        //Save the new selection and confirm update to custom group
+        await page.getByRole('button', { name: 'DISMISS' }).first().click()
+
+    });
 
     //Delete the group created
     test('Delete geography group', async ({ page }) => {
@@ -445,5 +555,87 @@ test.describe('Microdata Page Tests', () => {
         await expect(
             page.getByText('GroupName', { exact: true })
         ).toHaveCount(0);
+    });
+    //Delete all Variables
+    test('Delete variable selected from cart', async ({ page }) => {
+        await page.goto('/app/mdat/ACSPUMS1Y2024/cart?vv=PWGTP,WGTP,AGEP&wt=PWGTP');
+
+        //Select the button "Delete all variables"
+        await page.getByRole('button', { name: 'DELETE ALL VARIABLES' }).first().click()
+
+        //Select the button "Keep" all variables"
+        await page.getByRole('button', { name: 'KEEP VARIABLES' }).first().click()
+
+
+        // Verify PWGTP variable is available
+        const variable = page.locator('.varId', { hasText: 'PWGTP' });
+
+        await expect(variable).toBeVisible();
+
+        //Select the button "Delete all variables"
+        await page.getByRole('button', { name: 'DELETE ALL VARIABLES' }).first().click()
+
+        //VSelect the button "Keep" all variables"
+        await page.getByRole('button', { name: 'DELETE VARIABLES' }).first().click()
+
+        // check for variable in this case PWGTP
+        const delvariable = page.locator('.varId', { hasText: 'PWGTP' });
+
+        //confirm no variables exist
+        await expect(delvariable).toHaveCount(0);
+
+    });
+
+    //Compare Puma ID is not duplicate
+    test('No duplicate Puma IDs in table', async ({ page }) => {
+        await page.goto('/app/mdat/ACSPUMS1Y2022/table?cv=SEX&rv=POWPUMA&wt=PWGTP');
+
+        //check ID in table return
+        const pumaCells = page.locator('[role="gridcell"][col-id="POWPUMA"]');
+
+        //check all cells for puma 
+        const values = await pumaCells.allTextContents();
+
+        //Trim to just view ID
+        const ids = values.map(v => v.split(':')[0].trim());
+
+        //Begin array to confirm each of the cells
+        const duplicates = ids.filter(
+            (id, index) => ids.indexOf(id) !== index
+        );
+
+        //assert to confirm that the array compare to previous ID doesn't match
+        expect(duplicates).toEqual([]);
+    });
+
+    //drag and drop
+    test('drag and drop from rows to columns frame', async ({ page }) => {
+        await page.goto('/app/mdat/ACSPUMS1Y2024/table?cv=SEX&rv=ucgid&vv=AGEP&wt=PWGTP&g=AwFm-BVBlYCYA0og');
+
+        const source = page.locator('.aqua-chip', {
+            hasText: 'Selected Geographies'
+        });
+
+
+        const target = page.locator('#cv');
+
+        await source.dragTo(target);
+
+        //Find by gridcell within frame
+        const cell = page.locator(
+            '[role="gridcell"][col-id="totalCol"]'
+        );
+
+        //for this scenario, confirming that values 8,322,517 was confirmed in Row after drag and drop and 'Alaska' is no longer in row
+        await expect.poll(async () => {
+            return await cell.first().textContent();
+        }).not.toContain('Alaska');
+        //await expect(cell.first()).toContainText('8,322,517');
+
+        //Check to see if Alaska returns, should be 2 grouped headers with Alaska
+        await expect(
+            page.getByRole('columnheader', { name: 'Alaska' })
+        ).toHaveCount(2);
+
     });
 });
