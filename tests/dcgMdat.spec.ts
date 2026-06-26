@@ -246,7 +246,7 @@ test.describe('Microdata Page Tests', () => {
     });
 
 
-    //Default Mdat selection
+    //Default Mdat selection - region
     test('closing geography using x in geo chip', async ({ page }) => {
         await page.goto('/app/mdat/ACSPUMS1Y2024/geos?rv=ucgid&g=AwJm-BVBlEBoCMcAscDMQ');
 
@@ -449,7 +449,7 @@ test.describe('Microdata Page Tests', () => {
             'xpath=ancestor::div[@role="gridcell"]//img[@title="Edit group"]'
         );
 
-        //make sure editButton in view
+        //make sure edit Button in view
         await editButton.scrollIntoViewIfNeeded();
         const box = await editButton.boundingBox();
         await editButton.click({ trial: true });
