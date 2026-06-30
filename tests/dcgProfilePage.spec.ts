@@ -352,12 +352,105 @@ const englishMoe = page.getByLabel(
   'The margin of error for English only is plus or minus 0.1%'
 );
 
-//confirm Moe value is present once toggle switch is on
-await expect(englishMoe).toBeVisible();
-await expect(englishMoe).toHaveText(/±\s*0\.1%/);
+        //confirm Moe value is present once toggle switch is on
+        await expect(englishMoe).toBeVisible();
+        await expect(englishMoe).toHaveText(/±\s*0\.1%/);
+    });
+
+    test('confirm share-Embed button', async ({ page }) => {
+        await page.goto('/profile/United_States?g=010XX00US#populations-and-people');
+
+        //click the section share button
+        await page.locator('#share-embed-button_population-pyramid--population-by-age-and-sex').click();
+
+        await page.getByRole('button', { name: 'Copy' }).first().click();
+
+        const copyButton = page.locator('button[title="Copy url to clipboard"]');
+
+        await copyButton.click();
+
+        //confirm button on copy updates to Copied!
+        await expect(copyButton).toContainText('Copied!');
+
+        //confirm the link is correct for the share-embed button
+        const linkInput = page
+            .locator('.aqua-text-input')
+            .filter({ has: page.locator('.aqua-text-input_label', { hasText: 'Link' }) })
+            .locator('input');
+
+        await expect(linkInput).toHaveValue(
+            'https://data.census.gov/vizwidget?g=010XX00US&infoSection=Age+and+Sex'
+        );
+
+    });
+    test('Confirm Business and Economic Map', async ({ page }) => {
+        await page.goto('/profile/United_States?g=010XX00US#business-and-economy');
+
+        //confirm legend information is present for the Business and Economic Map
+        const legend = page.locator('.TopicVizMapLegend');
+
+        //confirm legend is visible
+        await expect(legend).toBeVisible();
+
+        const labels = await legend.locator('.label').allTextContents();
+
+        //confirm that there are labels present for the legend
+        expect(labels.length).toBeGreaterThan(0);
+
+        //f you want to confirm the exact labels present on the legend, you can uncomment the line below to view them in the console
+        /*await expect(labelLocator).toHaveCount(5);
+        
+        await expect(labelLocator).toHaveText([
+          '$805,008,753',
+          '$1,429,217,482',
+          '$2,053,426,211',
+          '$2,677,634,940',
+          '$3,301,843,669',
+        ]);*/
+
+
+    });
+
+    test('Confirm elements from Map', async ({ page }) => {
+        await page.goto('/profile/United_States?g=010XX00US#populations-and-people');
+
+        const map = page.locator('#map-section canvas.maplibregl-canvas');
+
+        await expect(map).toBeVisible();
+
+        // Confirm the map is present and has a bounding box
+        const box = await map.boundingBox();
+        if (!box) throw new Error('Map not found');
+
+        // Approximate location of Texas (example only)
+        await page.locator('#map-section canvas').click({
+            position: {
+                x: 1013,
+                y: 385.375
+            }
+        });
+
+        // Click on the "View Profile" link in the popup
+        await page
+            .locator('.MapPopups a.profile-link')
+            .getByText('View Profile')
+            .click();
+
+        // Confirm that the URL has changed to the Texas profile page
+        await expect(page).toHaveURL(/\/profile\/Texas\?g=040XX00US48/);
     });
 
 });
+
+
+
+
+
+
+
+
+  
+
 
  
 
