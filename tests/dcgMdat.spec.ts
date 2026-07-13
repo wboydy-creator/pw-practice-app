@@ -636,6 +636,5 @@ test.describe('Microdata Page Tests', () => {
         await expect(
             page.getByRole('columnheader', { name: 'Alaska' })
         ).toHaveCount(2);
-
     });
 });
